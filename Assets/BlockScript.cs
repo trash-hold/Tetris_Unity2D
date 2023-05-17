@@ -11,6 +11,7 @@ public class BlockScript : MonoBehaviour
     public KeyCode moveRightKey, moveLeftKey, rotateKey; 
     public bool isDown;
     private int Horizontal_offset = 1;
+    private float GravitySpeed = 4;
     void Start()
     {
         moveRightKey = KeyCode.D;
@@ -27,6 +28,10 @@ public class BlockScript : MonoBehaviour
             if (Input.GetKeyUp(moveRightKey)) MoveHorizontal(Horizontal_offset);
             else if (Input.GetKeyUp(moveLeftKey)) MoveHorizontal(-Horizontal_offset);
             else if (Input.GetKeyUp(rotateKey)) Rotate();
+
+            transform.position += new Vector3(0, -GravitySpeed * Time.deltaTime, 0);
+
+            //Debug.Log("On the move");
         }
     }
 
@@ -38,5 +43,20 @@ public class BlockScript : MonoBehaviour
     private void Rotate()
     {
         transform.Rotate(new Vector3(0, 0, 90), Space.Self);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.collider.tag == "colliderObj")
+        {
+            //First setting up parameters so that the object does no longer move:
+            isDown = true;
+            gameObject.tag = "colliderObj";
+
+            //Making sure that it doesnt end up in a weird rotation after collision
+            transform.position = new Vector3((int) transform.position.x, (int) transform.position.y, 0);
+            Debug.Log("Current tag is: " + gameObject.tag.ToString());
+        }
+        //Debug.Log("Detected collision");
     }
 }
