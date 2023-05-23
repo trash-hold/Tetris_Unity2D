@@ -6,12 +6,11 @@ public class BlockScript : MonoBehaviour
 {
     // Start is called before the first frame update
     public Rigidbody2D myRigidbody;
-
     //For future option to change keys in settings menu
     public KeyCode moveRightKey, moveLeftKey, rotateKey; 
     public bool isDown;
     private int Horizontal_offset = 1;
-    private float GravitySpeed = 4;
+    private float GravitySpeed = 7;
     void Start()
     {
         moveRightKey = KeyCode.D;
@@ -47,15 +46,20 @@ public class BlockScript : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.collider.tag == "colliderObj")
+        if(collision.collider.tag == "colliderObj" && isDown == false)
         {
             //First setting up parameters so that the object does no longer move:
             isDown = true;
             gameObject.tag = "colliderObj";
 
             //Making sure that it doesnt end up in a weird rotation after collision
-            transform.position = new Vector3((int) transform.position.x, (int) transform.position.y, 0);
-            Debug.Log("Current tag is: " + gameObject.tag.ToString());
+            transform.position = new Vector3(Mathf.Round(transform.position.x), Mathf.Round(transform.position.y), 0);
+
+            //Debug.Log("Detected collision inside " + gameObject.name.ToString() + " with " + collision.otherCollider.name.ToString());
+
+            //Disable collision detection 
+            myRigidbody.bodyType = RigidbodyType2D.Kinematic;
+            transform.parent.SendMessage("initBlockSpawn");
         }
         //Debug.Log("Detected collision");
     }
