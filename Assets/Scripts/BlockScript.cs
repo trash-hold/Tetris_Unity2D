@@ -7,15 +7,17 @@ public class BlockScript : MonoBehaviour
     // Start is called before the first frame update
     public Rigidbody2D myRigidbody;
     //For future option to change keys in settings menu
-    public KeyCode moveRightKey, moveLeftKey, rotateKey; 
+    public KeyCode moveRightKey, moveLeftKey, rotateKey, speedUpKey; 
     public bool isDown;
     private int Horizontal_offset = 1;
-    private float GravitySpeed = 7;
+    private float GravitySpeed = 10;
+    private float Acceleration = 1.5f;
     void Start()
     {
         moveRightKey = KeyCode.D;
         moveLeftKey = KeyCode.A;
         rotateKey = KeyCode.R;
+        speedUpKey = KeyCode.S;
         isDown = false;
     }
 
@@ -27,8 +29,12 @@ public class BlockScript : MonoBehaviour
             if (Input.GetKeyUp(moveRightKey)) MoveHorizontal(Horizontal_offset);
             else if (Input.GetKeyUp(moveLeftKey)) MoveHorizontal(-Horizontal_offset);
             else if (Input.GetKeyUp(rotateKey)) Rotate();
-
-            transform.position += new Vector3(0, -GravitySpeed * Time.deltaTime, 0);
+            
+            if (Input.GetKey(speedUpKey)) 
+            {
+                transform.position += new Vector3(0, -GravitySpeed * Time.deltaTime * Acceleration, 0);
+            }
+            else transform.position += new Vector3(0, -GravitySpeed * Time.deltaTime, 0);
 
             //Debug.Log("On the move");
         }

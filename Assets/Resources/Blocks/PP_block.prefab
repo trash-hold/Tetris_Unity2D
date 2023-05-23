@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 4823223111933791743}
   - component: {fileID: 7130564490849985442}
   m_Layer: 0
-  m_Name: L_rightBlock
+  m_Name: PP_block
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,6 +165,7 @@ MonoBehaviour:
   moveRightKey: 0
   moveLeftKey: 0
   rotateKey: 0
+  speedUpKey: 0
   isDown: 0
 --- !u!50 &4823223111933791743
 Rigidbody2D:
@@ -213,9 +214,11 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: 0.05, y: 0.05}
-      - {x: 1.95, y: 0.05}
-      - {x: 1.95, y: 0.95}
-      - {x: 0.95, y: 0.95}
+      - {x: 0.95, y: 0.05}
+      - {x: 0.95, y: 1.05}
+      - {x: 1.95, y: 1.05}
+      - {x: 1.95, y: 1.95}
+      - {x: 0.95, y: 1.95}
       - {x: 0.95, y: 2.95}
       - {x: 0.05, y: 2.95}
 --- !u!1 &1926496499094588677
@@ -355,7 +358,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1926496499145514387}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalPosition: {x: 1, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
