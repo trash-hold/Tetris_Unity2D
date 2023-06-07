@@ -65,7 +65,8 @@ public class BlockScript : MonoBehaviour
 
             //Disable collision detection 
             myRigidbody.bodyType = RigidbodyType2D.Kinematic;
-            transform.parent.SendMessage("initBlockSpawn");
+            Debug.Log("Block with detected collision: " + collision.otherCollider.gameObject.name);
+            transform.parent.SendMessage("initBlockSpawn", collision.otherCollider.gameObject);
         }
         //Debug.Log("Detected collision");
     }
