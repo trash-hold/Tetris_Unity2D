@@ -4,33 +4,34 @@ using UnityEngine;
 
 public class GameLogic : MonoBehaviour
 {
-    // Start is called before the first frame update
 
     //Main objects
-    private BlockSpawner blockSpawner;
-    private GameObject currentBlock;
-    //Informs about dimensions of currentBlock
-    private int leftBound, rightBound, downBound;
-    private int rotated = 0;
+    private BlockSpawner blockSpawner;              //Responsible for handling blocks' spawning
+    private GameObject currentBlock;                //Block that is currently steered and managed by gamelogic
+    
+    //Info about current block
+    private int leftBound, rightBound, downBound;   //Keeps (left/right/up/down)most coordinate of currentBlock
+    private int rotated = 0;                        //Counts how many 90 deegress turns where made - has value from 0-3
+    public bool isBlockDown;                        
 
     //Map size definition
-    private static int mapWidth = 10;
-    private static int mapHeight = 15;
-    private static int offset = 5;
+    private static int mapWidth = 10;   //Amount of elements in row
+    private static int mapHeight = 15;  //Amount of elements in a column
+    private static int offset = 5;      //Offset caused by moving camera :)
     private DataTable blockMap = new DataTable(mapHeight, mapWidth, offset);
 
     //Game parameters
     public KeyCode moveRightKey, moveLeftKey, rotateKey, speedUpKey; 
-    public bool isBlockDown;
-    private int Horizontal_offset = 1;
-    private int tempBoundary = -8;
-    private float GravitySpeed = 10;
-    private float Acceleration = 1.5f;
+    private int horizontalOffset = 1;   //How much does block move when on left/right click
+    private int tempBoundary = -9;      //Defines the Y value of the 'lowest' row 
+    private float gravitySpeed = 10;    //Defines the speed of blocks falling down
+    private float acceleration = 1.5f;  //Defines how many times faster does block move on speedUpKey 
     
     void Start()
     {
         Debug.Log("Init of gamelogic");
 
+        //Getting block spawner
         blockSpawner = GetComponent<BlockSpawner>();
         initBlockSpawn();
 
@@ -39,23 +40,28 @@ public class GameLogic : MonoBehaviour
         moveLeftKey = KeyCode.A;
         rotateKey = KeyCode.R;
         speedUpKey = KeyCode.S;
+        rotated = 0;
         isBlockDown = false;
     }
 
     void Update()
     {   
+
+        //Managing player's inputs
         if (!isBlockDown)
         {
-            if (Input.GetKeyUp(moveRightKey)) MoveHorizontal(Horizontal_offset);
-            else if (Input.GetKeyUp(moveLeftKey)) MoveHorizontal(-Horizontal_offset);
-            else if (Input.GetKeyUp(rotateKey)) Rotate();
+            if (Input.GetKeyUp(moveRightKey)) moveHorizontal(horizontalOffset);
+            else if (Input.GetKeyUp(moveLeftKey)) moveHorizontal(-horizontalOffset);
+            else if (Input.GetKeyUp(rotateKey)) blockRotate();
             
-            float new_offset = -GravitySpeed * Time.deltaTime;
+            //Imitating gravity
+            float new_offset = -gravitySpeed * Time.deltaTime;
             if (Input.GetKey(speedUpKey)) 
             {
-                new_offset = new_offset * Acceleration;
+                new_offset = new_offset * acceleration;
             }
             
+            //Checking if block collided
             if (currentBlock.transform.position.y + new_offset - downBound < tempBoundary)
             {
                 currentBlock.transform.position = new Vector3Int((int) currentBlock.transform.position.x, tempBoundary + downBound, 0);
@@ -70,7 +76,7 @@ public class GameLogic : MonoBehaviour
         }
     }
 
-    private void MoveHorizontal(int offset)
+    private void moveHorizontal(int offset)
     {
         Transform currBlock = currentBlock.transform;
         if((currBlock.position.x + offset - leftBound >= 0) & (currBlock.position.x + offset + rightBound <= mapWidth))
@@ -78,8 +84,9 @@ public class GameLogic : MonoBehaviour
         else Debug.Log("Out of bounds in x axis");
     }
 
-    private void Rotate()
+    private void blockRotate()
     {
+        //Probably this should be changed into temp transform
         currentBlock.transform.Rotate(new Vector3(0, 0, 90), Space.World);
         Transform currBlock = currentBlock.transform;
         rotated = (rotated + 1) % 4;
@@ -100,60 +107,54 @@ public class GameLogic : MonoBehaviour
             }
             else if(child.position.x + rightBound > mapWidth)
             {
-                currBlock.position += new Vector3(-(child.position.x - mapWidth), 0, 0);
                 //Debug.Log("Shift from right by: " + (child.position.x + rightBound - mapWidth).ToString());
                 //Debug.Log("Child position: " + child.position.x.ToString());
+                currBlock.position += new Vector3(-(child.position.x - mapWidth), 0, 0);
             }
         }
     }
 
+    //Method that spawns new block
     private void initBlockSpawn()
     {
-        Debug.Log("First block spawn called");
+        //Debug.Log("Spawn Initialized");
         currentBlock =  blockSpawner.spawnBlock();
+        //Reseting options
         updateDimensions();
-        isBlockDown = false;
         rotated = 0;
-
+        isBlockDown = false;
     }
 
+    //Method that finds bounds of building blocks inside parent block
     private void updateDimensions()
     {
-        int min_h = 0, max_h = 0, max_v = 0, min_v = 0;
+        int min_h = 0, max_h = 0, max_v = 0, min_v = 0;     //temp parameters
+
         foreach(Transform child in currentBlock.transform)
         {
+            //Simple translation of local axis to world axis
             int xpos = rotated % 2 == 1 ? (int) child.localPosition.y : (int) child.localPosition.x;
             int ypos = rotated % 2 == 1 ? (int) child.localPosition.x : (int) child.localPosition.y;
-
+            
+            //Horizontal bounds
             if(xpos > max_h) max_h = xpos;
             else if(xpos < min_h) min_h = xpos;
-
+            //Vertical bounds
             if(ypos > max_v) max_v = ypos;
             else if(ypos < min_v) min_v = ypos;
         }
-
+        
+        //Depending on current relation of local axis (in reference to global ones) we find max or min bounds 
         leftBound = (rotated == 0 || rotated == 3) ? min_h : max_h;
         rightBound = (rotated == 0 || rotated == 3) ? max_h : min_h;
-
         downBound = rotated < 2 ? min_v : max_v;
 
+        //Translating into absolute distance
         leftBound = Mathf.Abs(leftBound);
         rightBound = Mathf.Abs(rightBound);
         downBound = Mathf.Abs(downBound);
-        Debug.Log("Crucial dimensions: left - " + leftBound.ToString() + " , right - " + rightBound.ToString() + " , down - " + downBound.ToString() + " Current rotation: " + rotated.ToString());
-    }
 
-    public bool DataValidation(Transform blockTransform, bool rotation = false)
-    {
-        // this is literally shit XDDD
-        if (rotation) blockTransform.Rotate(new Vector3(0, 0, 90), Space.Self);
-        Vector3 blockPosition = blockTransform.position;
-        if(blockPosition.y >= mapHeight - 1)
-        {
-            if((blockPosition.x >= mapWidth - 1) & (blockPosition.x < 0)) return true;
-            else return false;
-        }
-        else return false;
+        Debug.Log("Crucial dimensions: left - " + leftBound.ToString() + " , right - " + rightBound.ToString() + " , down - " + downBound.ToString() + " Current rotation: " + rotated.ToString());
     }
 
 }

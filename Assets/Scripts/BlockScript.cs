@@ -8,9 +8,9 @@ public class BlockScript : MonoBehaviour
     //For future option to change keys in settings menu
     public KeyCode moveRightKey, moveLeftKey, rotateKey, speedUpKey; 
     public bool isDown;
-    private int Horizontal_offset = 1;
-    private float GravitySpeed = 10;
-    private float Acceleration = 1.5f;
+    private int horizontalOffset = 1;
+    private float gravitySpeed = 10;
+    private float acceleration = 1.5f;
     void Start()
     {
         moveRightKey = KeyCode.D;
@@ -25,21 +25,21 @@ public class BlockScript : MonoBehaviour
     {   
         if (!isDown)
         {
-            if (Input.GetKeyUp(moveRightKey)) MoveHorizontal(Horizontal_offset);
-            else if (Input.GetKeyUp(moveLeftKey)) MoveHorizontal(-Horizontal_offset);
+            if (Input.GetKeyUp(moveRightKey)) moveHorizontal(horizontalOffset);
+            else if (Input.GetKeyUp(moveLeftKey)) moveHorizontal(-horizontalOffset);
             else if (Input.GetKeyUp(rotateKey)) Rotate();
             
             if (Input.GetKey(speedUpKey)) 
             {
-                transform.position += new Vector3(0, -GravitySpeed * Time.deltaTime * Acceleration, 0);
+                transform.position += new Vector3(0, -gravitySpeed * Time.deltaTime * acceleration, 0);
             }
-            else transform.position += new Vector3(0, -GravitySpeed * Time.deltaTime, 0);
+            else transform.position += new Vector3(0, -gravitySpeed * Time.deltaTime, 0);
 
             //Debug.Log("On the move");
         }
     }
 
-    private void MoveHorizontal(int offset)
+    private void moveHorizontal(int offset)
     {
         transform.position = new Vector3((int)transform.position.x + offset, transform.position.y, transform.position.z);
     }
