@@ -11,7 +11,7 @@ public class GameLogic : MonoBehaviour
     private GameObject currentBlock;
     //Informs about dimensions of currentBlock
     private int leftBound, rightBound, downBound;
-    private int rotated;
+    private int rotated = 0;
 
     //Map size definition
     private static int mapWidth = 10;
@@ -56,18 +56,17 @@ public class GameLogic : MonoBehaviour
                 new_offset = new_offset * Acceleration;
             }
             
-            /*if (currentBlock.transform.position.y + new_offset + downBound < tempBoundary)
+            if (currentBlock.transform.position.y + new_offset - downBound < tempBoundary)
             {
-                currentBlock.transform.position = new Vector3Int((int) currentBlock.transform.position.x, tempBoundary - downBound, 0);
+                currentBlock.transform.position = new Vector3Int((int) currentBlock.transform.position.x, tempBoundary + downBound, 0);
                 isBlockDown = true;   
             }
-            else currentBlock.transform.position += new Vector3(0, new_offset, 0);*/
+            else currentBlock.transform.position += new Vector3(0, new_offset, 0);
             //Debug.Log("On the move");
         }
         else
         {
             initBlockSpawn();
-            isBlockDown = false;
         }
     }
 
@@ -107,24 +106,14 @@ public class GameLogic : MonoBehaviour
             }
         }
     }
-    public void initBlockSpawn(GameObject collidedBlock)
-    {
-        //Debug.Log("Called spawnBlock inside gamelogic after collision");
-        Debug.Log("Collider detected: " + collidedBlock.name + " has children: " + collidedBlock.transform.childCount.ToString());
-        //Transform[] childrenTransform = collidedBlock.GetComponentsInChildren<Transform>();
-        for(int i = 0; i < collidedBlock.transform.childCount; i++)
-        {   
-            int code = blockMap.AddData(collidedBlock.transform.GetChild(i));
-        }
-        Debug.Log("Finished adding all children");
-        currentBlock = blockSpawner.spawnBlock();
-    }
 
     private void initBlockSpawn()
     {
         Debug.Log("First block spawn called");
         currentBlock =  blockSpawner.spawnBlock();
         updateDimensions();
+        isBlockDown = false;
+        rotated = 0;
 
     }
 
@@ -143,15 +132,15 @@ public class GameLogic : MonoBehaviour
             else if(ypos < min_v) min_v = ypos;
         }
 
-        leftBound = rotated < 2 ? min_h : max_h;
-        rightBound = rotated < 2 ? max_h : min_h;
+        leftBound = (rotated == 0 || rotated == 3) ? min_h : max_h;
+        rightBound = (rotated == 0 || rotated == 3) ? max_h : min_h;
 
-        downBound = (rotated  == 0 || rotated == 3) ? max_v : min_v;
+        downBound = rotated < 2 ? min_v : max_v;
 
         leftBound = Mathf.Abs(leftBound);
         rightBound = Mathf.Abs(rightBound);
         downBound = Mathf.Abs(downBound);
-        Debug.Log("Crucial dimensions: left - " + leftBound.ToString() + " , right - " + rightBound.ToString() + " , down - " + downBound.ToString());
+        Debug.Log("Crucial dimensions: left - " + leftBound.ToString() + " , right - " + rightBound.ToString() + " , down - " + downBound.ToString() + " Current rotation: " + rotated.ToString());
     }
 
     public bool DataValidation(Transform blockTransform, bool rotation = false)
