@@ -11,12 +11,13 @@ public class BlockSpawner : MonoBehaviour
     private GameObject currentClone;
     // Update is called once per frame
     private int numGenerated = 0;
-    private int startY = 20;
+    private int startY = 10;
     private int offsetX = 5;
 
     void Start()
     {
         //Loading prefabs
+        //prefabsList = Resources.LoadAll<GameObject>("Blocks");
         prefabsList = Resources.LoadAll<GameObject>("Blocks");
         //Creating colour pallette: red, yellow, green, blue
         colorPallette = new Color32[]{
@@ -31,7 +32,7 @@ public class BlockSpawner : MonoBehaviour
         GameObject newPrefab = getPrefab();
 
         //Obj init
-        GameObject newObject =  Instantiate(newPrefab, new Vector3(0, startY, 0), new Quaternion(0,0,0,0), Parent.transform);
+        GameObject newObject =  Instantiate(newPrefab, new Vector3(offsetX, startY, 0), new Quaternion(0,0,0,0), Parent.transform);
 
         //Changing name and block colours
         newObject.name = newPrefab.name.ToString() + numGenerated.ToString();

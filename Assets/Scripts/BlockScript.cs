@@ -5,7 +5,6 @@ using UnityEngine;
 public class BlockScript : MonoBehaviour
 {
     // Start is called before the first frame update
-    public Rigidbody2D myRigidbody;
     //For future option to change keys in settings menu
     public KeyCode moveRightKey, moveLeftKey, rotateKey, speedUpKey; 
     public bool isDown;
@@ -64,8 +63,8 @@ public class BlockScript : MonoBehaviour
             //Debug.Log("Detected collision inside " + gameObject.name.ToString() + " with " + collision.otherCollider.name.ToString());
 
             //Disable collision detection 
-            myRigidbody.bodyType = RigidbodyType2D.Kinematic;
-            Debug.Log("Block with detected collision: " + collision.otherCollider.gameObject.name);
+            //myRigidbody.bodyType = RigidbodyType2D.Kinematic;
+            //Debug.Log("Block with detected collision: " + collision.otherCollider.gameObject.name);
             transform.parent.SendMessage("initBlockSpawn", collision.otherCollider.gameObject);
         }
         //Debug.Log("Detected collision");
