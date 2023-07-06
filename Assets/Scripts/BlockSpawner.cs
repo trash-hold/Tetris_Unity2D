@@ -11,7 +11,7 @@ public class BlockSpawner : MonoBehaviour
     private GameObject currentClone;
     // Update is called once per frame
     private int numGenerated = 0;
-    private int startY = 10;
+    public int startY = 20;
     private int offsetX = 5;
 
     void Start()

@@ -371,6 +371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Parent: {fileID: 595437386}
+  startY: 15
 --- !u!4 &595437388
 Transform:
   m_ObjectHideFlags: 0
@@ -398,11 +399,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88efe41b033025140a7465235e3e0010, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isBlockDown: 0
   moveRightKey: 0
   moveLeftKey: 0
   rotateKey: 0
   speedUpKey: 0
-  isBlockDown: 0
+  DevMode: 0
+  gravityOn: 1
 --- !u!1 &1632565156
 GameObject:
   m_ObjectHideFlags: 0
