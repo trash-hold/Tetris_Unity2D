@@ -11,6 +11,7 @@ public class GameLogic : MonoBehaviour
     
     //Info about current block
     private int leftBound, rightBound, downBound;   //Keeps (left/right/up/down)most coordinate of currentBlock
+    private Vector3 massCenter;
     private int rotated = 0;                        //Counts how many 90 deegress turns where made - has value from 0-3
     public bool isBlockDown;                        
 
@@ -24,7 +25,7 @@ public class GameLogic : MonoBehaviour
     public KeyCode moveRightKey, moveLeftKey, rotateKey, speedUpKey; 
     private int horizontalOffset = 1;   //How much does block move when on left/right click
     private static int tempBoundary = -9;      //Defines the Y value of the 'lowest' row 
-    private float gravitySpeed = 10;    //Defines the speed of blocks falling down
+    private float gravitySpeed = 4;    //Defines the speed of blocks falling down
     private float acceleration = 1.5f;  //Defines how many times faster does block move on speedUpKey 
     
 
@@ -45,7 +46,7 @@ public class GameLogic : MonoBehaviour
         //Setting default settings 
         moveRightKey = KeyCode.D;
         moveLeftKey = KeyCode.A;
-        rotateKey = KeyCode.R;
+        rotateKey = KeyCode.W;
         speedUpKey = KeyCode.S;
         rotated = 0;
         isBlockDown = false;
@@ -134,7 +135,12 @@ public class GameLogic : MonoBehaviour
     private void blockRotate()
     {
         //Probably this should be changed into temp transform
-        currentBlock.Rotate(new Vector3(0, 0, 90), Space.Self);
+        //currentBlock.Rotate(new Vector3(0, 0, 90), Space.Self);
+        Vector3 newPosition = currentBlock.position + massCenter;
+        Debug.LogFormat("Position: {0} {1}; Mass center: {2} {3}; New posiiton {4} {5}", currentBlock.position.x, currentBlock.position.y, massCenter.x, massCenter.y, newPosition.x, newPosition.y);
+        currentBlock.RotateAround(newPosition, Vector3.forward, 90);
+        massCenter = Quaternion.Euler(0, 0, 90) * massCenter;
+
         Transform currBlock = currentBlock;
         rotated = (rotated + 1) % 4;
         updateDimensions();
@@ -172,14 +178,14 @@ public class GameLogic : MonoBehaviour
         rightBound = 0;
         downBound = 0;*/
         rotated = 0;
-        updateDimensions();
+        updateDimensions(true);
         isBlockDown = false;
     }
 
     //Method that finds bounds of building blocks inside parent block
-    private void updateDimensions()
+    private void updateDimensions(bool setCenter = false)
     {
-        int min_h = 0, max_h = 0, max_v = 0, min_v = 0;     //temp parameters
+        int min_h = 0, max_h = 0, max_v = 0, min_v = 0, upBound = 0;     //temp parameters
 
         foreach(Transform child in currentBlock)
         {
@@ -200,6 +206,15 @@ public class GameLogic : MonoBehaviour
         leftBound = (rotated == 0 || rotated == 3) ? min_h : max_h;
         rightBound = (rotated == 0 || rotated == 3) ? max_h : min_h;
         downBound = rotated < 2 ? min_v : max_v;
+        upBound = rotated < 2 ? max_v : min_v;
+
+        //Setting center of gravity vector:
+        if(setCenter == true)
+        {
+            float x_axis = rightBound + leftBound;
+            float y_axis = upBound + downBound;
+            massCenter = new Vector3(x_axis/2.0f, y_axis/2.0f, 0);
+        }
 
         //Translating into absolute distance
         leftBound = Mathf.Abs(leftBound);
@@ -209,6 +224,14 @@ public class GameLogic : MonoBehaviour
         debugInfo(0);
 
         //Debug.Log("Crucial dimensions: left - " + leftBound.ToString() + " , right - " + rightBound.ToString() + " , down - " + downBound.ToString() + " Current rotation: " + rotated.ToString());
+    }
+
+    ///<summary> human design rounding -> when floating point bigger than .5 round up </summary>
+    private float round(float value)
+    {
+        float temp = Mathf.Floor(value);
+        if((value * 10 - temp * 10) >= 5) temp += 1;
+        return temp; 
     }
 
 }
@@ -294,6 +317,7 @@ public class DataTable
 
         foreach(int n in rowsToClear)
         {
+            Debug.LogFormat("deleting {0}th row", n);
             clearData(n);
         }
         return code;
@@ -361,7 +385,7 @@ public class DataTable
         }
         count[rowIndex] = 0;
 
-        for(int row = rowIndex; row < Height; row++)
+        for(int row = rowIndex; row < Height - 1; row++)
         {   
             Debug.Log("Row " + row.ToString());
             //Exchanging data between rows
